@@ -1,0 +1,652 @@
+//==================================================
+
+#include <freertos/FreeRTOS.h>
+#include <driver/gpio.h>
+#include <driver/ledc.h>
+#include <esp_log.h>
+
+extern "C" void app_main()
+{
+    const ledc_timer_config_t ledc_timer1 = {
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .duty_resolution = LEDC_TIMER_8_BIT,
+        .timer_num = LEDC_TIMER_0,
+        .freq_hz = 1000,
+        .clk_cfg = LEDC_AUTO_CLK};
+    ledc_timer_config(&ledc_timer1);
+
+    const ledc_channel_config_t ledc_channel1 = {
+        .gpio_num = GPIO_NUM_26,
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .channel = LEDC_CHANNEL_0,
+        .intr_type = LEDC_INTR_DISABLE,
+        .timer_sel = LEDC_TIMER_0,
+        .duty = 0,
+        .hpoint = 0};
+    ledc_channel_config(&ledc_channel1);
+
+    const ledc_timer_config_t ledc_timer2 = {
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .duty_resolution = LEDC_TIMER_8_BIT,
+        .timer_num = LEDC_TIMER_0,
+        .freq_hz = 1000,
+        .clk_cfg = LEDC_AUTO_CLK};
+    ledc_timer_config(&ledc_timer2);
+
+    const ledc_channel_config_t ledc_channel2 = {
+        .gpio_num = GPIO_NUM_27,
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .channel = LEDC_CHANNEL_1,
+        .intr_type = LEDC_INTR_DISABLE,
+        .timer_sel = LEDC_TIMER_0,
+        .duty = 255,
+        .hpoint = 0};
+    ledc_channel_config(&ledc_channel2);
+
+    uint32_t duty_cycle1 = 0;
+    uint32_t duty_cycle2 = 255;
+
+    while (1)
+    {
+        while (duty_cycle1 < 256)
+        {
+            duty_cycle1++;
+            duty_cycle2--;
+            ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, duty_cycle1);
+            ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+            ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1, duty_cycle2);
+            ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1);
+            vTaskDelay(10 / portTICK_PERIOD_MS);
+        }
+
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+        while (duty_cycle1 > 0)
+        {
+            duty_cycle1--;
+            duty_cycle2++;
+            ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, duty_cycle1);
+            ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+            ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1, duty_cycle2);
+            ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1);
+            vTaskDelay(10 / portTICK_PERIOD_MS);
+        }
+
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+        duty_cycle1 = 0;
+        duty_cycle2 = 255;
+    }
+}
+
+//==================================================
+
+#include <freertos/FreeRTOS.h>
+#include <driver/gpio.h>
+#include <driver/ledc.h>
+#include <esp_log.h>
+
+extern "C" void app_main()
+{
+    esp_rom_gpio_pad_select_gpio(GPIO_NUM_26);
+    gpio_set_direction(GPIO_NUM_26, GPIO_MODE_OUTPUT);
+
+    esp_rom_gpio_pad_select_gpio(GPIO_NUM_27);
+    gpio_set_direction(GPIO_NUM_27, GPIO_MODE_OUTPUT);
+
+    gpio_set_level(GPIO_NUM_26, 0);
+    gpio_set_level(GPIO_NUM_27, 0);
+
+    while (1)
+    {
+        gpio_set_level(GPIO_NUM_26, 1);
+        vTaskDelay(3000 / portTICK_PERIOD_MS);
+        gpio_set_level(GPIO_NUM_26, 0);
+        gpio_set_level(GPIO_NUM_27, 1);
+        vTaskDelay(3000 / portTICK_PERIOD_MS);
+        gpio_set_level(GPIO_NUM_27, 0);
+        vTaskDelay(3000 / portTICK_PERIOD_MS);
+    }
+}
+
+//==================================================
+
+#include <freertos/FreeRTOS.h>
+#include <driver/gpio.h>
+#include <driver/ledc.h>
+#include <esp_log.h>
+
+extern "C" void app_main()
+{
+    // esp_rom_gpio_pad_select_gpio(GPIO_NUM_26);
+    // gpio_set_direction(GPIO_NUM_26, GPIO_MODE_OUTPUT);
+
+    esp_rom_gpio_pad_select_gpio(GPIO_NUM_27);
+    gpio_set_direction(GPIO_NUM_27, GPIO_MODE_OUTPUT);
+
+    // gpio_set_level(GPIO_NUM_26, 0);
+    gpio_set_level(GPIO_NUM_27, 0);
+
+    // while (1)
+    // {
+    //     gpio_set_level(GPIO_NUM_26, 1);
+    //     vTaskDelay(3000 / portTICK_PERIOD_MS);
+    //     gpio_set_level(GPIO_NUM_26, 0);
+    //     gpio_set_level(GPIO_NUM_27, 1);
+    //     vTaskDelay(3000 / portTICK_PERIOD_MS);
+    //     gpio_set_level(GPIO_NUM_27, 0);
+    // }
+
+    const ledc_timer_config_t ledc_timer1 = {
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .duty_resolution = LEDC_TIMER_8_BIT,
+        .timer_num = LEDC_TIMER_0,
+        .freq_hz = 1000,
+        .clk_cfg = LEDC_AUTO_CLK};
+    ledc_timer_config(&ledc_timer1);
+
+    const ledc_channel_config_t ledc_channel1 = {
+        .gpio_num = GPIO_NUM_26,
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .channel = LEDC_CHANNEL_0,
+        .intr_type = LEDC_INTR_DISABLE,
+        .timer_sel = LEDC_TIMER_0,
+        .duty = 0,
+        .hpoint = 0};
+    ledc_channel_config(&ledc_channel1);
+
+    const ledc_timer_config_t ledc_timer2 = {
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .duty_resolution = LEDC_TIMER_8_BIT,
+        .timer_num = LEDC_TIMER_0,
+        .freq_hz = 1000,
+        .clk_cfg = LEDC_AUTO_CLK};
+    ledc_timer_config(&ledc_timer2);
+
+    const ledc_channel_config_t ledc_channel2 = {
+        .gpio_num = GPIO_NUM_27,
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .channel = LEDC_CHANNEL_1,
+        .intr_type = LEDC_INTR_DISABLE,
+        .timer_sel = LEDC_TIMER_0,
+        .duty = 255,
+        .hpoint = 0};
+    ledc_channel_config(&ledc_channel2);
+
+    uint32_t duty_cycle1 = 0;
+    uint32_t duty_cycle2 = 255;
+
+    while (1)
+    {
+        while (duty_cycle1 < 256)
+        {
+            duty_cycle1++;
+            duty_cycle2--;
+              ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, duty_cycle1);
+            ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+            ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1, duty_cycle2);
+            ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1);
+            vTaskDelay(10 / portTICK_PERIOD_MS);
+        }
+
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+        while (duty_cycle1 > 0)
+        {
+            duty_cycle1--;
+            duty_cycle2++;
+            ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, duty_cycle1);
+            ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+            ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1, duty_cycle2);
+            ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1);
+            vTaskDelay(10 / portTICK_PERIOD_MS);
+        }
+        
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        
+        duty_cycle1 = 0;
+        duty_cycle2 = 255;
+    }
+    
+    // uint32_t duty_cycle1 = 255;
+    // ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, duty_cycle1);
+    // ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+    // vTaskDelay(10 / portTICK_PERIOD_MS);
+    // duty_cycle1 = 191;
+    // while (1)
+    // {
+    //     ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, duty_cycle1);
+    //     ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+    // }
+}
+
+//==================================================
+
+#include <freertos/FreeRTOS.h>
+#include <driver/gpio.h>
+#include <driver/ledc.h>
+#include <esp_log.h>
+#include <iostream>
+
+uint8_t duty_cycle0 = 191;
+
+bool read_clk_flag = false;
+bool stored_clk_flag = false;
+// bool read_dt_flag = false;
+// bool stored_dt_flag = false;
+
+void IRAM_ATTR intr_pot0(void *arg)
+{
+    read_clk_flag = gpio_get_level(GPIO_NUM_25);
+    if (read_clk_flag != stored_clk_flag)
+    {
+        if (gpio_get_level(GPIO_NUM_33))
+        {
+            duty_cycle0 += 5;
+        }
+        else
+        {
+            duty_cycle0 -= 5;
+        }
+    }
+    stored_clk_flag = read_clk_flag;
+};
+
+// void IRAM_ATTR intr_pot1(void *arg)
+// {
+//     stored_dt_flag = gpio_get_level(GPIO_NUM_33);
+// };
+
+extern "C" void app_main()
+{
+    // uint8_t duty_cycle0 = 127;
+
+    // clk pin
+    gpio_set_direction(GPIO_NUM_25, GPIO_MODE_INPUT);
+    // clk pin
+    gpio_set_direction(GPIO_NUM_33, GPIO_MODE_INPUT);
+
+    // motor pin
+    gpio_set_direction(GPIO_NUM_32, GPIO_MODE_OUTPUT);
+
+    const ledc_timer_config_t ledc_timer0 = {
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .duty_resolution = LEDC_TIMER_8_BIT,
+        .timer_num = LEDC_TIMER_0,
+        .freq_hz = 1000,
+        .clk_cfg = LEDC_AUTO_CLK};
+    ledc_timer_config(&ledc_timer0);
+
+    const ledc_channel_config_t ledc_channel0 = {
+        .gpio_num = GPIO_NUM_32,
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .channel = LEDC_CHANNEL_0,
+        .intr_type = LEDC_INTR_DISABLE,
+        .timer_sel = LEDC_TIMER_0,
+        .duty = duty_cycle0,
+        .hpoint = 0};
+    ledc_channel_config(&ledc_channel0);
+
+    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, duty_cycle0);
+    ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+
+    gpio_set_intr_type(GPIO_NUM_25, GPIO_INTR_NEGEDGE);
+    // gpio_set_intr_type(GPIO_NUM_33, GPIO_INTR_ANYEDGE);
+    gpio_install_isr_service(0);
+    gpio_isr_handler_add(GPIO_NUM_25, intr_pot0, NULL);
+    // gpio_isr_handler_add(GPIO_NUM_33, intr_pot1, NULL);
+
+    while (1)
+    {
+        vTaskDelay(300 / portTICK_PERIOD_MS); // debounce
+        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, duty_cycle0);
+        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+        // {
+        //     vTaskDelay(300 / portTICK_PERIOD_MS); // debounce
+        //     ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, duty_cycle0);
+        //     ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+        // }
+        // vTaskDelay(300 / portTICK_PERIOD_MS);
+    }
+}
+
+//==================================================
+
+#include <freertos/FreeRTOS.h>
+#include <driver/gpio.h>
+#include <driver/ledc.h>
+#include <esp_log.h>
+#include <iostream>
+
+bool clk_flag = false;
+bool dt_value_read = false;
+bool dt_value_stored = false;
+
+void IRAM_ATTR intr_pot0(void *arg)
+{
+    dt_value_read = gpio_get_level(GPIO_NUM_33);
+    clk_flag = 1;
+};
+
+extern "C" void app_main()
+{
+    uint8_t duty_cycle0 = 127;
+
+    // clk pin
+    gpio_set_direction(GPIO_NUM_25, GPIO_MODE_INPUT);
+    // dt pin
+    gpio_set_direction(GPIO_NUM_33, GPIO_MODE_INPUT);
+    // motor pin
+    gpio_set_direction(GPIO_NUM_32, GPIO_MODE_OUTPUT);
+
+    const ledc_timer_config_t ledc_timer0 = {
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .duty_resolution = LEDC_TIMER_8_BIT,
+        .timer_num = LEDC_TIMER_0,
+        .freq_hz = 1000,
+        .clk_cfg = LEDC_AUTO_CLK};
+    ledc_timer_config(&ledc_timer0);
+
+    const ledc_channel_config_t ledc_channel0 = {
+        .gpio_num = GPIO_NUM_32,
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .channel = LEDC_CHANNEL_0,
+        .intr_type = LEDC_INTR_DISABLE,
+        .timer_sel = LEDC_TIMER_0,
+        .duty = duty_cycle0,
+        .hpoint = 0};
+    ledc_channel_config(&ledc_channel0);
+
+    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, duty_cycle0);
+    ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+
+    gpio_set_intr_type(GPIO_NUM_25, GPIO_INTR_NEGEDGE);
+    gpio_install_isr_service(0);
+    gpio_isr_handler_add(GPIO_NUM_25, intr_pot0, NULL);
+
+    while (1)
+    {
+        vTaskDelay(300 / portTICK_PERIOD_MS); // debounce
+        if (clk_flag)
+        {
+            if (dt_value_read)
+                duty_cycle0 += 5;
+            else
+                duty_cycle0 -= 5;
+
+            dt_value_stored = dt_value_read;
+            clk_flag = 0;
+            vTaskDelay(300 / portTICK_PERIOD_MS);
+            ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, duty_cycle0);
+            ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+        }
+    }
+}
+
+//==================================================
+
+#include <freertos/FreeRTOS.h>
+#include <driver/gpio.h>
+#include <driver/ledc.h>
+#include <esp_log.h>
+#include <iostream>
+
+#define motor1_pin_a GPIO_NUM_32
+#define motor1_pin_b GPIO_NUM_14
+#define motor2_pin_a GPIO_NUM_26
+#define motor2_pin_b GPIO_NUM_27
+#define knob_pin_dt GPIO_NUM_33
+#define knob_pin_clk GPIO_NUM_25
+
+// bool clk_flag = false;
+// bool dt_value_read = false;
+// bool dt_value_stored = false;
+
+// void IRAM_ATTR intr_pot0(void *arg)
+// {
+//     dt_value_read = gpio_get_level(knob_pin_dt);
+//     clk_flag = 1;
+// };
+
+void config_pin_io()
+{
+    // clk pin
+    gpio_set_direction(knob_pin_clk, GPIO_MODE_INPUT);
+    // dt pin
+    gpio_set_direction(knob_pin_dt, GPIO_MODE_INPUT);
+    // motor 1 pin
+    gpio_set_direction(motor1_pin_a, GPIO_MODE_OUTPUT);
+    // motor 1 pin
+    gpio_set_direction(motor1_pin_b, GPIO_MODE_OUTPUT);
+    // motor 2 pin
+    gpio_set_direction(motor2_pin_a, GPIO_MODE_OUTPUT);
+    // motor 2 pin
+    gpio_set_direction(motor2_pin_b, GPIO_MODE_OUTPUT);
+};
+
+void config_pin_pwm(const uint8_t &i_duty_cycle1,
+                    const uint8_t &i_duty_cycle2,
+                    const uint16_t &i_duty_cycle3,
+                    const uint16_t &i_duty_cycle4)
+{
+    // motor 1 common timer config
+    const ledc_timer_config_t ledc_timer0 = {
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .duty_resolution = LEDC_TIMER_8_BIT,
+        .timer_num = LEDC_TIMER_0,
+        .freq_hz = 1000,
+        .clk_cfg = LEDC_AUTO_CLK};
+    ledc_timer_config(&ledc_timer0);
+
+    // motor 1 pin a channel config
+    const ledc_channel_config_t ledc_channel0 = {
+        .gpio_num = motor1_pin_a,
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .channel = LEDC_CHANNEL_0,
+        .intr_type = LEDC_INTR_DISABLE,
+        .timer_sel = LEDC_TIMER_0,
+        .duty = i_duty_cycle1,
+        .hpoint = 0};
+    ledc_channel_config(&ledc_channel0);
+
+    // motor 1 pin b channel config
+    const ledc_channel_config_t ledc_channel1 = {
+        .gpio_num = motor1_pin_b,
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .channel = LEDC_CHANNEL_1,
+        .intr_type = LEDC_INTR_DISABLE,
+        .timer_sel = LEDC_TIMER_0,
+        .duty = i_duty_cycle2,
+        .hpoint = 0};
+    ledc_channel_config(&ledc_channel1);
+
+    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, i_duty_cycle1);
+    ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+
+    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1, i_duty_cycle2);
+    ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1);
+
+    // motor 2 common timer config
+    const ledc_timer_config_t ledc_timer1 = {
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .duty_resolution = LEDC_TIMER_9_BIT,
+        .timer_num = LEDC_TIMER_1,
+        .freq_hz = 2000,
+        .clk_cfg = LEDC_AUTO_CLK};
+    ledc_timer_config(&ledc_timer1);
+
+    // motor 2 pin a channel config
+    const ledc_channel_config_t ledc_channel2 = {
+        .gpio_num = motor2_pin_a,
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .channel = LEDC_CHANNEL_2,
+        .intr_type = LEDC_INTR_DISABLE,
+        .timer_sel = LEDC_TIMER_1,
+        .duty = i_duty_cycle3,
+        .hpoint = 0};
+    ledc_channel_config(&ledc_channel2);
+
+    // motor 2 pin b channel config
+    const ledc_channel_config_t ledc_channel3 = {
+        .gpio_num = motor2_pin_b,
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .channel = LEDC_CHANNEL_3,
+        .intr_type = LEDC_INTR_DISABLE,
+        .timer_sel = LEDC_TIMER_1,
+        .duty = i_duty_cycle4,
+        .hpoint = 0};
+    ledc_channel_config(&ledc_channel3);
+
+    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2, i_duty_cycle3);
+    ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2);
+
+    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_3, i_duty_cycle4);
+    ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_3);
+};
+
+extern "C" void app_main()
+{
+    uint8_t motor1_pin_a_duty_cycle = 255;
+    uint8_t motor1_pin_b_duty_cycle = 0;
+    uint16_t motor2_pin_a_duty_cycle = 0;
+    uint16_t motor2_pin_b_duty_cycle = 0;
+
+    config_pin_io();
+    config_pin_pwm(motor1_pin_a_duty_cycle,
+                   motor1_pin_b_duty_cycle,
+                   motor2_pin_a_duty_cycle,
+                   motor2_pin_b_duty_cycle);
+
+    // motor speed down then reverse speed up
+    for (uint8_t looper = 0; looper < 5; ++looper)
+    {
+        for (; motor1_pin_a_duty_cycle > 5;)
+        {
+            ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, motor1_pin_a_duty_cycle);
+            ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+            vTaskDelay(100 / portTICK_PERIOD_MS);
+            motor1_pin_a_duty_cycle -= 5;
+        }
+        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 0);
+        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        for (; motor1_pin_b_duty_cycle < 250;)
+        {
+            ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1, motor1_pin_b_duty_cycle);
+            ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1);
+            vTaskDelay(100 / portTICK_PERIOD_MS);
+            motor1_pin_b_duty_cycle += 5;
+        }
+        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1, 0);
+        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1);
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+
+        motor2_pin_a_duty_cycle = 511;
+        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2, motor2_pin_a_duty_cycle);
+        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2);
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        for (; motor2_pin_a_duty_cycle > 5;)
+        {
+            ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2, motor2_pin_a_duty_cycle);
+            ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2);
+            vTaskDelay(100 / portTICK_PERIOD_MS);
+            motor2_pin_a_duty_cycle -= 5;
+        }
+        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2, 0);
+        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2);
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        for (; motor2_pin_b_duty_cycle < 506;)
+        {
+            ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_3, motor2_pin_b_duty_cycle);
+            ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_3);
+            vTaskDelay(100 / portTICK_PERIOD_MS);
+            motor2_pin_b_duty_cycle += 5;
+        }
+        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_3, 0);
+        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_3);
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+    }
+
+    // gpio_set_intr_type(GPIO_NUM_25, GPIO_INTR_NEGEDGE);
+    // gpio_install_isr_service(0);
+    // gpio_isr_handler_add(GPIO_NUM_25, intr_pot0, NULL);
+
+    // while (1)
+    // {
+    //     vTaskDelay(100 / portTICK_PERIOD_MS); // debounce
+    //     if (clk_flag)
+    //     {
+    //         if (dt_value_read)
+    //             duty_cycle0 += 5;
+    //         else
+    //             duty_cycle0 -= 5;
+
+    //         dt_value_stored = dt_value_read;
+    //         clk_flag = 0;
+    //         vTaskDelay(100 / portTICK_PERIOD_MS);
+    //         ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, duty_cycle0);
+    //         ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+    //     }
+    // }
+}
+
+//==================================================
+// esp32 generic headers
+#include <freertos/FreeRTOS.h>
+#include <driver/gpio.h>
+#include <driver/ledc.h>
+#include <esp_log.h>
+#include <esp_timer.h>
+#include <esp_task_wdt.h>
+#include <vector>
+
+// custom headers
+#include "shi_definitions.h"
+#include "shi_utils.h"
+#include "shi_motor.h"
+
+const char *TAG = "TestRun";
+
+void test_loop()
+{
+    esp_task_wdt_add(NULL);
+
+    int count = 0;
+    int last_time = 0;
+    while (count < 10)
+    {
+        {
+            int curr_time = esp_timer_get_time();
+            if (curr_time - last_time > 50 && 0 == gpio_get_level(GPIO_NUM_34))
+            {
+                last_time = curr_time;
+                ESP_LOGI(TAG, "Sensor Readings: %d", count++);
+            }
+        }
+        vTaskDelay(5);
+        esp_task_wdt_reset();
+    }
+    esp_task_wdt_reset();
+    esp_task_wdt_delete(NULL);
+};
+
+extern "C" void app_main()
+{
+    esp_task_wdt_add(NULL);
+    esp_rom_gpio_pad_select_gpio(GPIO_NUM_34);
+    gpio_set_direction(GPIO_NUM_34, GPIO_MODE_INPUT);
+    test_loop();
+    // config_pin_io();
+    // config_pin_intr();
+
+    // uint8_t m1_pa_dc = 0;
+    // uint8_t m1_pb_dc = 255;
+    // uint8_t m2_pa_dc = 0;
+    // uint8_t m2_pb_dc = 255;
+
+    motor motor_x(1, mot1_pin_a, mot1_pin_b, mot1_slp, LEDC_TIMER_0, LEDC_CHANNEL_0, LEDC_CHANNEL_1, true, false);
+    motor_x.set_pwm(255);
+    motor motor_y(1, mot2_pin_a, mot2_pin_b, mot2_slp, LEDC_TIMER_1, LEDC_CHANNEL_2, LEDC_CHANNEL_3, true, false);
+    motor_y.set_pwm(192);
+}
+//==================================================
