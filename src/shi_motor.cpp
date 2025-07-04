@@ -5,6 +5,7 @@
 
 const char *motor_tag = "motor";
 const char *virtual_motor_tag = "virtual_motor";
+const char *kinematic_tag = "kinematic";
 
 motor::motor(
     uint8_t i_id,
@@ -366,4 +367,332 @@ void virtual_motor::run()
             vTaskDelay(pdMS_TO_TICKS(10));
         }
     }
+};
+
+kinematic::kinematic(
+    uint8_t i_id,
+    kinematic_config i_config,
+    gpio_num_t i_pin_a_a,
+    gpio_num_t i_pin_a_b,
+    gpio_num_t i_pin_b_a,
+    gpio_num_t i_pin_b_b,
+    gpio_num_t i_pin_en_a,
+    gpio_num_t i_pin_en_b,
+    ledc_timer_t i_timer,
+    ledc_channel_t i_channel_a,
+    ledc_channel_t i_channel_b,
+    bool i_dir = true,
+    bool i_en_a = true,
+    bool i_en_b = true)
+    : m_id(i_id),
+      m_config(i_config),
+      m_pin_a_a(i_pin_a_a),
+      m_pin_a_b(i_pin_a_b),
+      m_pin_b_a(i_pin_b_a),
+      m_pin_b_b(i_pin_b_b),
+      m_pin_en_a(i_pin_en_a),
+      m_pin_en_b(i_pin_en_b),
+      m_timer(i_timer),
+      m_channel_a(i_channel_a),
+      m_channel_b(i_channel_b),
+      m_dir(i_dir),
+      m_enable_a(i_en_a),
+      m_enable_b(i_en_b)
+{
+    ESP_LOGI(kinematic_tag, "%d constructing  ", m_id);
+    m_pwm = 0;
+};
+
+void kinematic::set_pwm(uint8_t i_pwm)
+{
+    if (m_pwm != i_pwm)
+    {
+        m_pwm = i_pwm;
+        ESP_LOGI(kinematic_tag, "%d | PWM Value Set: %d", m_id, m_pwm);
+        run();
+    }
+};
+
+uint8_t kinematic::get_pwm()
+{
+    return m_pwm;
+};
+
+void kinematic::set_direction(bool i_direction)
+{
+    if (m_dir != i_direction)
+    {
+        uint8_t cache_pwm = m_pwm;
+        set_pwm(0);
+        m_dir = i_direction;
+        ESP_LOGI(virtual_motor_tag, "%d | Direction Set: %d", m_id, m_dir);
+        set_pwm(cache_pwm);
+    }
+};
+
+bool kinematic::get_direction()
+{
+    return m_dir;
+};
+
+void kinematic::enable_a(bool i_enable_a)
+{
+    switch (m_config)
+    {
+    case X_AXIS:
+    {
+        break;
+    }
+    case Y_AXIS:
+    {
+        break;
+    }
+    case QUAD13:
+    {
+        break;
+    }
+    case QUAD24:
+    {
+        break;
+    }
+    default:
+    {
+    }
+    }
+};
+
+bool kinematic::is_a_enabled()
+{
+    return m_enable_a;
+};
+
+void kinematic::enable_b(bool i_enable_b)
+{
+    switch (m_config)
+    {
+    case X_AXIS:
+    {
+        break;
+    }
+    case Y_AXIS:
+    {
+        break;
+    }
+    case QUAD13:
+    {
+        break;
+    }
+    case QUAD24:
+    {
+        break;
+    }
+    default:
+    {
+    }
+    }
+};
+
+bool kinematic::is_b_enabled()
+{
+    return m_enable_b;
+};
+
+void kinematic::run()
+{
+    switch (m_config)
+    {
+    case X_AXIS:
+    {
+        break;
+    }
+    case Y_AXIS:
+    {
+        break;
+    }
+    case QUAD13:
+    {
+        break;
+    }
+    case QUAD24:
+    {
+        break;
+    }
+    default:
+    {
+    }
+    }
+};
+
+void kinematic::set_kinematic_config(kinematic_config i_kinematic_config)
+{
+    m_config = i_kinematic_config;
+};
+
+kinematic_config kinematic::get_kinematic_config()
+{
+    return m_config;
+};
+
+void kinematic::config_X_AXIS()
+{
+    const ledc_timer_config_t ledc_timer = {
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .duty_resolution = LEDC_TIMER_8_BIT,
+        .timer_num = m_timer,
+        .freq_hz = 1000,
+        .clk_cfg = LEDC_AUTO_CLK};
+    ledc_timer_config(&ledc_timer);
+
+    const ledc_channel_config_t ledc_channel_a_a = {
+        .gpio_num = m_pin_a_a,
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .channel = m_channel_a,
+        .intr_type = LEDC_INTR_DISABLE,
+        .timer_sel = m_timer,
+        .duty = m_pwm,
+        .hpoint = 0};
+    ledc_channel_config(&ledc_channel_a_a);
+
+    const ledc_channel_config_t ledc_channel_b_a = {
+        .gpio_num = m_pin_b_a,
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .channel = m_channel_a,
+        .intr_type = LEDC_INTR_DISABLE,
+        .timer_sel = m_timer,
+        .duty = m_pwm,
+        .hpoint = 0};
+    ledc_channel_config(&ledc_channel_b_a);
+
+    const ledc_channel_config_t ledc_channel_a_b = {
+        .gpio_num = m_pin_a_b,
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .channel = m_channel_b,
+        .intr_type = LEDC_INTR_DISABLE,
+        .timer_sel = m_timer,
+        .duty = m_pwm,
+        .hpoint = 0};
+    ledc_channel_config(&ledc_channel_a_b);
+
+    const ledc_channel_config_t ledc_channel_b_b = {
+        .gpio_num = m_pin_b_b,
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .channel = m_channel_b,
+        .intr_type = LEDC_INTR_DISABLE,
+        .timer_sel = m_timer,
+        .duty = m_pwm,
+        .hpoint = 0};
+    ledc_channel_config(&ledc_channel_b_b);
+};
+
+void kinematic::config_Y_AXIS()
+{
+    const ledc_timer_config_t ledc_timer = {
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .duty_resolution = LEDC_TIMER_8_BIT,
+        .timer_num = m_timer,
+        .freq_hz = 1000,
+        .clk_cfg = LEDC_AUTO_CLK};
+    ledc_timer_config(&ledc_timer);
+
+    const ledc_channel_config_t ledc_channel_a_a = {
+        .gpio_num = m_pin_a_a,
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .channel = m_channel_a,
+        .intr_type = LEDC_INTR_DISABLE,
+        .timer_sel = m_timer,
+        .duty = m_pwm,
+        .hpoint = 0};
+    ledc_channel_config(&ledc_channel_a_a);
+
+    const ledc_channel_config_t ledc_channel_b_b = {
+        .gpio_num = m_pin_b_b,
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .channel = m_channel_a,
+        .intr_type = LEDC_INTR_DISABLE,
+        .timer_sel = m_timer,
+        .duty = m_pwm,
+        .hpoint = 0};
+    ledc_channel_config(&ledc_channel_b_b);
+
+    const ledc_channel_config_t ledc_channel_a_b = {
+        .gpio_num = m_pin_a_b,
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .channel = m_channel_b,
+        .intr_type = LEDC_INTR_DISABLE,
+        .timer_sel = m_timer,
+        .duty = m_pwm,
+        .hpoint = 0};
+    ledc_channel_config(&ledc_channel_a_b);
+
+    const ledc_channel_config_t ledc_channel_b_a = {
+        .gpio_num = m_pin_b_a,
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .channel = m_channel_b,
+        .intr_type = LEDC_INTR_DISABLE,
+        .timer_sel = m_timer,
+        .duty = m_pwm,
+        .hpoint = 0};
+    ledc_channel_config(&ledc_channel_b_a);
+};
+
+void kinematic::config_QUAD13()
+{
+    const ledc_timer_config_t ledc_timer = {
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .duty_resolution = LEDC_TIMER_8_BIT,
+        .timer_num = m_timer,
+        .freq_hz = 1000,
+        .clk_cfg = LEDC_AUTO_CLK};
+    ledc_timer_config(&ledc_timer);
+
+    const ledc_channel_config_t ledc_channel_a_a = {
+        .gpio_num = m_pin_a_a,
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .channel = m_channel_a,
+        .intr_type = LEDC_INTR_DISABLE,
+        .timer_sel = m_timer,
+        .duty = m_pwm,
+        .hpoint = 0};
+    ledc_channel_config(&ledc_channel_a_a);
+
+    const ledc_channel_config_t ledc_channel_a_b = {
+        .gpio_num = m_pin_a_b,
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .channel = m_channel_b,
+        .intr_type = LEDC_INTR_DISABLE,
+        .timer_sel = m_timer,
+        .duty = m_pwm,
+        .hpoint = 0};
+    ledc_channel_config(&ledc_channel_a_b);
+};
+
+void kinematic::config_QUAD24()
+{
+    const ledc_timer_config_t ledc_timer = {
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .duty_resolution = LEDC_TIMER_8_BIT,
+        .timer_num = m_timer,
+        .freq_hz = 1000,
+        .clk_cfg = LEDC_AUTO_CLK};
+    ledc_timer_config(&ledc_timer);
+
+    const ledc_channel_config_t ledc_channel_b_a = {
+        .gpio_num = m_pin_b_a,
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .channel = m_channel_a,
+        .intr_type = LEDC_INTR_DISABLE,
+        .timer_sel = m_timer,
+        .duty = m_pwm,
+        .hpoint = 0};
+    ledc_channel_config(&ledc_channel_b_a);
+
+    const ledc_channel_config_t ledc_channel_b_b = {
+        .gpio_num = m_pin_b_b,
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .channel = m_channel_b,
+        .intr_type = LEDC_INTR_DISABLE,
+        .timer_sel = m_timer,
+        .duty = m_pwm,
+        .hpoint = 0};
+    ledc_channel_config(&ledc_channel_b_b);
 };

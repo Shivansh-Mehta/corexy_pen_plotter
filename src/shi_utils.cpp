@@ -20,38 +20,42 @@ uint64_t count_y_b = 0;
 
 void IRAM_ATTR intr_endstop_x_a(void *arg)
 {
+    // if (0 == gpio_get_level(endstop_x_a))
     b_endstop_x_a = true;
-    esp_rom_gpio_pad_select_gpio(mot1_slp);
-    gpio_set_level(mot1_slp, 0);
-    esp_rom_gpio_pad_select_gpio(mot2_slp);
-    gpio_set_level(mot2_slp, 0);
+    // esp_rom_gpio_pad_select_gpio(mot1_slp);
+    // gpio_set_level(mot1_slp, 0);
+    // esp_rom_gpio_pad_select_gpio(mot2_slp);
+    // gpio_set_level(mot2_slp, 0);
 };
 
 void IRAM_ATTR intr_endstop_x_b(void *arg)
 {
+    // if (0 == gpio_get_level(endstop_x_b))
     b_endstop_x_b = true;
-    esp_rom_gpio_pad_select_gpio(mot1_slp);
-    gpio_set_level(mot1_slp, 0);
-    esp_rom_gpio_pad_select_gpio(mot2_slp);
-    gpio_set_level(mot2_slp, 0);
+    // esp_rom_gpio_pad_select_gpio(mot1_slp);
+    // gpio_set_level(mot1_slp, 0);
+    // esp_rom_gpio_pad_select_gpio(mot2_slp);
+    // gpio_set_level(mot2_slp, 0);
 };
 
 void IRAM_ATTR intr_endstop_y_a(void *arg)
 {
+    // if (0 == gpio_get_level(endstop_y_a))
     b_endstop_y_a = true;
-    esp_rom_gpio_pad_select_gpio(mot1_slp);
-    gpio_set_level(mot1_slp, 0);
-    esp_rom_gpio_pad_select_gpio(mot2_slp);
-    gpio_set_level(mot2_slp, 0);
+    // esp_rom_gpio_pad_select_gpio(mot1_slp);
+    // gpio_set_level(mot1_slp, 0);
+    // esp_rom_gpio_pad_select_gpio(mot2_slp);
+    // gpio_set_level(mot2_slp, 0);
 };
 
 void IRAM_ATTR intr_endstop_y_b(void *arg)
 {
+    // if (0 == gpio_get_level(endstop_y_b))
     b_endstop_y_b = true;
-    esp_rom_gpio_pad_select_gpio(mot1_slp);
-    gpio_set_level(mot1_slp, 0);
-    esp_rom_gpio_pad_select_gpio(mot2_slp);
-    gpio_set_level(mot2_slp, 0);
+    // esp_rom_gpio_pad_select_gpio(mot1_slp);
+    // gpio_set_level(mot1_slp, 0);
+    // esp_rom_gpio_pad_select_gpio(mot2_slp);
+    // gpio_set_level(mot2_slp, 0);
 };
 
 void IRAM_ATTR intr_sensor_mot1(void *arg)
@@ -119,27 +123,27 @@ void config_pin_intr()
     gpio_install_isr_service(0);
 
     // esp_rom_gpio_pad_select_gpio(sensor_mot1);
-    gpio_set_intr_type(sensor_mot1, GPIO_INTR_POSEDGE);
+    gpio_set_intr_type(sensor_mot1, GPIO_INTR_ANYEDGE);
     gpio_isr_handler_add(sensor_mot1, intr_sensor_mot1, NULL);
 
     // esp_rom_gpio_pad_select_gpio(sensor_mot2);
-    gpio_set_intr_type(sensor_mot2, GPIO_INTR_POSEDGE);
+    gpio_set_intr_type(sensor_mot2, GPIO_INTR_ANYEDGE);
     gpio_isr_handler_add(sensor_mot2, intr_sensor_mot2, NULL);
 
     // esp_rom_gpio_pad_select_gpio(endstop_x_a);
-    gpio_set_intr_type(endstop_x_a, GPIO_INTR_POSEDGE);
+    gpio_set_intr_type(endstop_x_a, GPIO_INTR_ANYEDGE);
     gpio_isr_handler_add(endstop_x_a, intr_endstop_x_a, NULL);
 
     // esp_rom_gpio_pad_select_gpio(endstop_x_b);
-    gpio_set_intr_type(endstop_x_b, GPIO_INTR_POSEDGE);
+    gpio_set_intr_type(endstop_x_b, GPIO_INTR_ANYEDGE);
     gpio_isr_handler_add(endstop_x_b, intr_endstop_x_b, NULL);
 
     // esp_rom_gpio_pad_select_gpio(endstop_y_a);
-    gpio_set_intr_type(endstop_y_a, GPIO_INTR_POSEDGE);
+    gpio_set_intr_type(endstop_y_a, GPIO_INTR_ANYEDGE);
     gpio_isr_handler_add(endstop_y_a, intr_endstop_y_a, NULL);
 
     // esp_rom_gpio_pad_select_gpio(endstop_y_b);
-    gpio_set_intr_type(endstop_y_b, GPIO_INTR_POSEDGE);
+    gpio_set_intr_type(endstop_y_b, GPIO_INTR_ANYEDGE);
     gpio_isr_handler_add(endstop_y_b, intr_endstop_y_b, NULL);
 };
 
@@ -148,16 +152,15 @@ void count_intr_endstop_x_a(void *arg)
     ESP_LOGI(tag_utils, "listening to: endstop_x_a");
     while (1)
     {
+        b_endstop_x_a = false;
+        vTaskDelay(pdMS_TO_TICKS(50));
         if (b_endstop_x_a == true)
         {
-            b_endstop_x_a = false;
-            vTaskDelay(pdMS_TO_TICKS(100));
             count_x_a++;
             if (count_x_a % 2 == 0)
                 ESP_LOGI(tag_utils, "count_x_a: %d", (int)(count_x_a / 2));
+            // ESP_LOGI(tag_utils, "count_x_a: %d", (int)(count_x_a));
         }
-        else
-            vTaskDelay(pdMS_TO_TICKS(50));
     }
 };
 
@@ -166,16 +169,15 @@ void count_intr_endstop_x_b(void *arg)
     ESP_LOGI(tag_utils, "listening to: endstop_x_b");
     while (1)
     {
+        b_endstop_x_b = false;
+        vTaskDelay(pdMS_TO_TICKS(50));
         if (b_endstop_x_b == true)
         {
-            b_endstop_x_b = false;
-            vTaskDelay(pdMS_TO_TICKS(100));
             count_x_b++;
             if (count_x_b % 2 == 0)
                 ESP_LOGI(tag_utils, "count_x_b: %d", (int)(count_x_b / 2));
+            // ESP_LOGI(tag_utils, "count_x_b: %d", (int)(count_x_b));
         }
-        else
-            vTaskDelay(pdMS_TO_TICKS(50));
     }
 };
 
@@ -184,16 +186,15 @@ void count_intr_endstop_y_a(void *arg)
     ESP_LOGI(tag_utils, "listening to: endstop_y_a");
     while (1)
     {
+        b_endstop_y_a = false;
+        vTaskDelay(pdMS_TO_TICKS(50));
         if (b_endstop_y_a == true)
         {
-            b_endstop_y_a = false;
-            vTaskDelay(pdMS_TO_TICKS(100));
             count_y_a++;
             if (count_y_a % 2 == 0)
                 ESP_LOGI(tag_utils, "count_y_a: %d", (int)(count_y_a / 2));
+            // ESP_LOGI(tag_utils, "count_y_a: %d", (int)(count_y_a));
         }
-        else
-            vTaskDelay(pdMS_TO_TICKS(50));
     }
 };
 
@@ -202,16 +203,15 @@ void count_intr_endstop_y_b(void *arg)
     ESP_LOGI(tag_utils, "listening to: endstop_y_b");
     while (1)
     {
+        b_endstop_y_b = false;
+        vTaskDelay(pdMS_TO_TICKS(50));
         if (b_endstop_y_b == true)
         {
-            b_endstop_y_b = false;
-            vTaskDelay(pdMS_TO_TICKS(100));
             count_y_b++;
             if (count_y_b % 2 == 0)
                 ESP_LOGI(tag_utils, "count_y_b: %d", (int)(count_y_b / 2));
+            // ESP_LOGI(tag_utils, "count_y_b: %d", (int)(count_y_b));
         }
-        else
-            vTaskDelay(pdMS_TO_TICKS(50));
     }
 };
 
