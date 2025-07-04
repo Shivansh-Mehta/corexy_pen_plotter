@@ -401,7 +401,7 @@ kinematic::kinematic(
       m_dir(i_dir),
       m_enable(i_en)
 {
-    ESP_LOGI(kinematic_tag, "%d constructing  ", m_id);
+    ESP_LOGI(kinematic_tag, "%d | running kinematic() / constructor", m_id);
     m_pwm = 0;
 
     const ledc_timer_config_t ledc_timer = {
@@ -459,10 +459,13 @@ kinematic::kinematic(
     ledc_channel_config(&ledc_channel_d);
     ledc_set_duty(LEDC_LOW_SPEED_MODE, m_channel_b_b, m_pwm);
     ledc_update_duty(LEDC_LOW_SPEED_MODE, m_channel_b_b);
+
+    enable(m_enable);
 };
 
 void kinematic::set_pwm(uint8_t i_pwm)
 {
+    ESP_LOGI(kinematic_tag, "%d | running set_pwm()", m_id);
     if (m_pwm != i_pwm)
     {
         m_pwm = i_pwm;
@@ -473,11 +476,13 @@ void kinematic::set_pwm(uint8_t i_pwm)
 
 uint8_t kinematic::get_pwm()
 {
+    ESP_LOGI(kinematic_tag, "%d | running get_pwm()", m_id);
     return m_pwm;
 };
 
 void kinematic::set_direction(bool i_direction)
 {
+    ESP_LOGI(kinematic_tag, "%d | running set_direction()", m_id);
     if (m_dir != i_direction)
     {
         uint8_t cache_pwm = m_pwm;
@@ -490,41 +495,48 @@ void kinematic::set_direction(bool i_direction)
 
 bool kinematic::get_direction()
 {
+    ESP_LOGI(kinematic_tag, "%d | running get_direction()", m_id);
     return m_dir;
 };
 
 void kinematic::enable(bool i_enable)
 {
+    ESP_LOGI(kinematic_tag, "%d | running enable()", m_id);
     m_enable = i_enable;
     ESP_LOGI(kinematic_tag, "%d | Enable Status: %d", m_id, (int)m_enable);
     switch (m_config)
     {
     case X_AXIS:
     {
+        ESP_LOGI(kinematic_tag, "%d : X_AXIS enabled", m_id);
         gpio_set_level(m_pin_en_a, m_enable);
         gpio_set_level(m_pin_en_b, m_enable);
         break;
     }
     case Y_AXIS:
     {
+        ESP_LOGI(kinematic_tag, "%d : Y_AXIS enabled", m_id);
         gpio_set_level(m_pin_en_a, m_enable);
         gpio_set_level(m_pin_en_b, m_enable);
         break;
     }
     case QUAD13:
     {
+        ESP_LOGI(kinematic_tag, "%d : QUAD13 enabled", m_id);
         gpio_set_level(m_pin_en_a, m_enable);
         gpio_set_level(m_pin_en_b, 0);
         break;
     }
     case QUAD24:
     {
+        ESP_LOGI(kinematic_tag, "%d : QUAD24 enabled", m_id);
         gpio_set_level(m_pin_en_a, 0);
         gpio_set_level(m_pin_en_b, m_enable);
         break;
     }
     default:
     {
+        ESP_LOGI(kinematic_tag, "%d : default enabled", m_id);
         gpio_set_level(m_pin_en_a, 0);
         gpio_set_level(m_pin_en_b, 0);
         break;
@@ -534,11 +546,13 @@ void kinematic::enable(bool i_enable)
 
 bool kinematic::is_enabled()
 {
+    ESP_LOGI(kinematic_tag, "%d | running is_enabled()", m_id);
     return m_enable;
 };
 
 void kinematic::run()
 {
+    ESP_LOGI(kinematic_tag, "%d | running run()", m_id);
     switch (m_config)
     {
     case X_AXIS:
@@ -563,6 +577,7 @@ void kinematic::run()
     }
     default:
     {
+        ESP_LOGI(kinematic_tag, "%d : default running", m_id);
         run_X_AXIS();
         break;
     }
@@ -571,16 +586,20 @@ void kinematic::run()
 
 void kinematic::set_kinematic_config(kinematic_config i_kinematic_config)
 {
+    ESP_LOGI(kinematic_tag, "%d | running set_kinematic_config()", m_id);
     m_config = i_kinematic_config;
 };
 
 kinematic_config kinematic::get_kinematic_config()
 {
+    ESP_LOGI(kinematic_tag, "%d | running get_kinematic_config()", m_id);
     return m_config;
 };
 
 void kinematic::run_X_AXIS()
 {
+    ESP_LOGI(kinematic_tag, "%d | running run_X_AXIS()", m_id);
+
     uint8_t ramp = 0;
     if (m_dir)
     {
@@ -616,6 +635,8 @@ void kinematic::run_X_AXIS()
 
 void kinematic::run_Y_AXIS()
 {
+    ESP_LOGI(kinematic_tag, "%d | running run_Y_AXIS()", m_id);
+
     uint8_t ramp = 0;
     if (m_dir)
     {
@@ -651,6 +672,8 @@ void kinematic::run_Y_AXIS()
 
 void kinematic::run_QUAD13()
 {
+    ESP_LOGI(kinematic_tag, "%d | running run_QUAD13()", m_id);
+
     ledc_set_duty(LEDC_LOW_SPEED_MODE, m_channel_b_a, 0);
     ledc_set_duty(LEDC_LOW_SPEED_MODE, m_channel_b_b, 0);
     ledc_update_duty(LEDC_LOW_SPEED_MODE, m_channel_b_a);
@@ -682,6 +705,8 @@ void kinematic::run_QUAD13()
 
 void kinematic::run_QUAD24()
 {
+    ESP_LOGI(kinematic_tag, "%d | running run_QUAD24()", m_id);
+
     ledc_set_duty(LEDC_LOW_SPEED_MODE, m_channel_a_a, 0);
     ledc_set_duty(LEDC_LOW_SPEED_MODE, m_channel_a_b, 0);
     ledc_update_duty(LEDC_LOW_SPEED_MODE, m_channel_a_a);

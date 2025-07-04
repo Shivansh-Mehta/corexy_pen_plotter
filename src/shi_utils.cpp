@@ -20,42 +20,22 @@ uint64_t count_y_b = 0;
 
 void IRAM_ATTR intr_endstop_x_a(void *arg)
 {
-    // if (0 == gpio_get_level(endstop_x_a))
     b_endstop_x_a = true;
-    // esp_rom_gpio_pad_select_gpio(mot1_slp);
-    // gpio_set_level(mot1_slp, 0);
-    // esp_rom_gpio_pad_select_gpio(mot2_slp);
-    // gpio_set_level(mot2_slp, 0);
 };
 
 void IRAM_ATTR intr_endstop_x_b(void *arg)
 {
-    // if (0 == gpio_get_level(endstop_x_b))
     b_endstop_x_b = true;
-    // esp_rom_gpio_pad_select_gpio(mot1_slp);
-    // gpio_set_level(mot1_slp, 0);
-    // esp_rom_gpio_pad_select_gpio(mot2_slp);
-    // gpio_set_level(mot2_slp, 0);
 };
 
 void IRAM_ATTR intr_endstop_y_a(void *arg)
 {
-    // if (0 == gpio_get_level(endstop_y_a))
     b_endstop_y_a = true;
-    // esp_rom_gpio_pad_select_gpio(mot1_slp);
-    // gpio_set_level(mot1_slp, 0);
-    // esp_rom_gpio_pad_select_gpio(mot2_slp);
-    // gpio_set_level(mot2_slp, 0);
 };
 
 void IRAM_ATTR intr_endstop_y_b(void *arg)
 {
-    // if (0 == gpio_get_level(endstop_y_b))
     b_endstop_y_b = true;
-    // esp_rom_gpio_pad_select_gpio(mot1_slp);
-    // gpio_set_level(mot1_slp, 0);
-    // esp_rom_gpio_pad_select_gpio(mot2_slp);
-    // gpio_set_level(mot2_slp, 0);
 };
 
 void IRAM_ATTR intr_sensor_mot1(void *arg)
@@ -70,6 +50,8 @@ void IRAM_ATTR intr_sensor_mot2(void *arg)
 
 void config_pin_io()
 {
+    ESP_LOGI(tag_utils, "running config_pin_io()");
+
     // global enable
     esp_rom_gpio_pad_select_gpio(global_enable);
     gpio_set_direction(global_enable, GPIO_MODE_OUTPUT);
@@ -120,6 +102,7 @@ void config_pin_io()
 
 void config_pin_intr()
 {
+    ESP_LOGI(tag_utils, "running config_pin_intr()");
     gpio_install_isr_service(0);
 
     // esp_rom_gpio_pad_select_gpio(sensor_mot1);
@@ -233,18 +216,50 @@ void count_intr_sensor_mot2(void *arg)
     }
 };
 
-bool get_b_endstop_x_a() { return b_endstop_x_a; };
+bool get_b_endstop_x_a()
+{
+    ESP_LOGI(tag_utils, "running get_b_endstop_x_a()");
+    return b_endstop_x_a;
+};
 
-bool get_b_endstop_x_b() { return b_endstop_x_b; };
+bool get_b_endstop_x_b()
+{
+    ESP_LOGI(tag_utils, "running get_b_endstop_x_b()");
+    return b_endstop_x_b;
+};
 
-uint64_t get_count_x_a() { return count_x_a; };
+uint64_t get_count_x_a()
+{
+    ESP_LOGI(tag_utils, "running get_count_x_a()");
+    return count_x_a;
+};
 
-uint64_t get_count_x_b() { return count_x_b; };
+uint64_t get_count_x_b()
+{
+    ESP_LOGI(tag_utils, "running get_count_x_b()");
+    return count_x_b;
+};
 
-bool get_b_endstop_y_a() { return b_endstop_y_a; };
+bool get_b_endstop_y_a()
+{
+    ESP_LOGI(tag_utils, "running get_b_endstop_y_a()");
+    return b_endstop_y_a;
+};
 
-bool get_b_endstop_y_b() { return b_endstop_y_b; };
+bool get_b_endstop_y_b()
+{
+    ESP_LOGI(tag_utils, "running get_b_endstop_y_b()");
+    return b_endstop_y_b;
+};
 
-uint64_t get_count_y_a() { return count_y_a; };
+uint64_t get_count_y_a()
+{
+    ESP_LOGI(tag_utils, "running get_count_y_a()");
+    return count_y_a;
+};
 
-uint64_t get_count_y_b() { return count_y_b; };
+uint64_t get_count_y_b()
+{
+    ESP_LOGI(tag_utils, "running get_count_y_b()");
+    return count_y_b;
+};
