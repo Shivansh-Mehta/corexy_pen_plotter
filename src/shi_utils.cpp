@@ -50,7 +50,7 @@ void IRAM_ATTR intr_sensor_mot2(void *arg)
 
 void config_pin_io()
 {
-    ESP_LOGI(tag_utils, "running config_pin_io()");
+    ESP_LOGI(tag_utils, "executing config_pin_io()");
 
     // global enable
     esp_rom_gpio_pad_select_gpio(global_enable);
@@ -70,16 +70,20 @@ void config_pin_io()
     // motor 1 pin a
     esp_rom_gpio_pad_select_gpio(mot1_pin_a);
     gpio_set_direction(mot1_pin_a, GPIO_MODE_OUTPUT);
+    gpio_set_level(mot1_pin_a, 0);
     // motor 1 pin b
     esp_rom_gpio_pad_select_gpio(mot1_pin_b);
     gpio_set_direction(mot1_pin_b, GPIO_MODE_OUTPUT);
+    gpio_set_level(mot1_pin_b, 0);
 
     // motor 2 pin a
     esp_rom_gpio_pad_select_gpio(mot2_pin_a);
     gpio_set_direction(mot2_pin_a, GPIO_MODE_OUTPUT);
+    gpio_set_level(mot2_pin_a, 0);
     // motor 2 pin b
     esp_rom_gpio_pad_select_gpio(mot2_pin_b);
     gpio_set_direction(mot2_pin_b, GPIO_MODE_OUTPUT);
+    gpio_set_level(mot2_pin_b, 0);
 
     // x axis endstop a
     esp_rom_gpio_pad_select_gpio(endstop_x_a);
@@ -102,7 +106,7 @@ void config_pin_io()
 
 void config_pin_intr()
 {
-    ESP_LOGI(tag_utils, "running config_pin_intr()");
+    ESP_LOGI(tag_utils, "executing config_pin_intr()");
     gpio_install_isr_service(0);
 
     // esp_rom_gpio_pad_select_gpio(sensor_mot1);
@@ -218,48 +222,40 @@ void count_intr_sensor_mot2(void *arg)
 
 bool get_b_endstop_x_a()
 {
-    ESP_LOGI(tag_utils, "running get_b_endstop_x_a()");
     return b_endstop_x_a;
 };
 
 bool get_b_endstop_x_b()
 {
-    ESP_LOGI(tag_utils, "running get_b_endstop_x_b()");
     return b_endstop_x_b;
 };
 
 uint64_t get_count_x_a()
 {
-    ESP_LOGI(tag_utils, "running get_count_x_a()");
     return count_x_a;
 };
 
 uint64_t get_count_x_b()
 {
-    ESP_LOGI(tag_utils, "running get_count_x_b()");
     return count_x_b;
 };
 
 bool get_b_endstop_y_a()
 {
-    ESP_LOGI(tag_utils, "running get_b_endstop_y_a()");
     return b_endstop_y_a;
 };
 
 bool get_b_endstop_y_b()
 {
-    ESP_LOGI(tag_utils, "running get_b_endstop_y_b()");
     return b_endstop_y_b;
 };
 
 uint64_t get_count_y_a()
 {
-    ESP_LOGI(tag_utils, "running get_count_y_a()");
     return count_y_a;
 };
 
 uint64_t get_count_y_b()
 {
-    ESP_LOGI(tag_utils, "running get_count_y_b()");
     return count_y_b;
 };

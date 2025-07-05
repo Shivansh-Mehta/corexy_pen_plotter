@@ -96,17 +96,15 @@ class kinematic
 private:
     uint8_t m_id;
     kinematic_config m_config;
-    gpio_num_t m_pin_a_a;
-    gpio_num_t m_pin_a_b;
-    gpio_num_t m_pin_b_a;
-    gpio_num_t m_pin_b_b;
-    gpio_num_t m_pin_en_a;
-    gpio_num_t m_pin_en_b;
+    gpio_num_t m_pin_a_p;
+    gpio_num_t m_pin_a_n;
+    gpio_num_t m_pin_b_p;
+    gpio_num_t m_pin_b_n;
+    gpio_num_t m_pin_a_en;
+    gpio_num_t m_pin_b_en;
     ledc_timer_t m_timer;
-    ledc_channel_t m_channel_a_a;
-    ledc_channel_t m_channel_a_b;
-    ledc_channel_t m_channel_b_a;
-    ledc_channel_t m_channel_b_b;
+    ledc_channel_t m_channel_a;
+    ledc_channel_t m_channel_b;
     bool m_dir;
     bool m_enable;
     uint8_t m_pwm;
@@ -115,17 +113,15 @@ public:
     kinematic(
         uint8_t i_id,
         kinematic_config i_config,
-        gpio_num_t i_pin_a_a,
-        gpio_num_t i_pin_a_b,
-        gpio_num_t i_pin_b_a,
-        gpio_num_t i_pin_b_b,
-        gpio_num_t i_pin_en_a,
-        gpio_num_t i_pin_en_b,
+        gpio_num_t i_pin_a_p,
+        gpio_num_t i_pin_a_n,
+        gpio_num_t i_pin_b_p,
+        gpio_num_t i_pin_b_n,
+        gpio_num_t i_pin_a_en,
+        gpio_num_t i_pin_b_en,
         ledc_timer_t i_timer,
-        ledc_channel_t i_channel_a_a,
-        ledc_channel_t i_channel_a_b,
-        ledc_channel_t i_channel_b_a,
-        ledc_channel_t i_channel_b_b,
+        ledc_channel_t i_channel_a,
+        ledc_channel_t i_channel_b,
         bool i_dir = true,
         bool i_en = true);
     void set_pwm(uint8_t i_pwm);
@@ -140,9 +136,4 @@ public:
     void enable(bool i_enable);
     bool is_enabled();
     void run();
-
-    void run_X_AXIS();
-    void run_Y_AXIS();
-    void run_QUAD13();
-    void run_QUAD24();
 };
