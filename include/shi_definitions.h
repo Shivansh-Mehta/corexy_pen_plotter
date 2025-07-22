@@ -25,4 +25,4 @@
 #define endstop_y_b GPIO_NUM_13 // ip pin
 
 // pen holder system servo
-#define phs_servo GPIO_NUM_9 // op pin
+#define phs_servo GPIO_NUM_14 // op pin

@@ -3,6 +3,7 @@
 #include <freertos/FreeRTOS.h>
 #include <driver/gpio.h>
 #include <driver/ledc.h>
+#include <iot_servo.h>
 
 enum kinematic_config
 {
@@ -10,6 +11,33 @@ enum kinematic_config
     Y_AXIS = 1,
     QUAD13 = 2,
     QUAD24 = 3
+};
+
+class servo_motor
+{
+private:
+    uint8_t m_id;
+    gpio_num_t m_pin;
+    ledc_timer_t m_timer;
+    ledc_channel_t m_channel;
+
+private:
+    bool m_enable = false;
+    bool m_dir = false;
+    double m_min_microsec = 500;
+    double m_max_microsec = 2500;
+    double m_max_degree = 180;
+    uint32_t m_freq = 50;
+
+public:
+    servo_motor(
+        uint8_t i_id,
+        gpio_num_t i_pin_a,
+        ledc_timer_t i_timer,
+        ledc_channel_t i_channel);
+
+    uint32_t angle_to_duty_us(int angle);
+    void run(double i_degrees);
 };
 
 class motor
@@ -136,4 +164,9 @@ public:
     void enable(bool i_enable);
     bool is_enabled();
     void run();
+
+    void rotate_once_ch_a();
+    void rotate_once_ch_b();
+    void rotate_ch_a(uint64_t i_num_of_rotations);
+    void rotate_ch_b(uint64_t i_num_of_rotations);
 };

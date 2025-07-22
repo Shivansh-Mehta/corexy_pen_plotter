@@ -3,20 +3,24 @@
 #include <freertos/FreeRTOS.h>
 #include <driver/gpio.h>
 
+#define count_gap_divisor 1
+
 const char *tag_utils = "utilities";
 
-bool b_sensor_mot1 = false;
-bool b_sensor_mot2 = false;
+volatile bool b_sensor_mot1 = false;
+volatile uint64_t count_sensor_mot1 = 0;
+volatile bool b_sensor_mot2 = false;
+volatile uint64_t count_sensor_mot2 = 0;
 
-bool b_endstop_x_a = false;
-bool b_endstop_x_b = false;
-uint64_t count_x_a = 0;
-uint64_t count_x_b = 0;
+volatile bool b_endstop_x_a = false;
+volatile bool b_endstop_x_b = false;
+volatile uint64_t count_x_a = 0;
+volatile uint64_t count_x_b = 0;
 
-bool b_endstop_y_a = false;
-bool b_endstop_y_b = false;
-uint64_t count_y_a = 0;
-uint64_t count_y_b = 0;
+volatile bool b_endstop_y_a = false;
+volatile bool b_endstop_y_b = false;
+volatile uint64_t count_y_a = 0;
+volatile uint64_t count_y_b = 0;
 
 void IRAM_ATTR intr_endstop_x_a(void *arg)
 {
@@ -206,8 +210,14 @@ void count_intr_sensor_mot1(void *arg)
 {
     while (1)
     {
-        vTaskDelay(pdMS_TO_TICKS(100));
         b_sensor_mot1 = false;
+        vTaskDelay(pdMS_TO_TICKS(50));
+        if (b_sensor_mot1 == true)
+        {
+            count_sensor_mot1++;
+            if (count_sensor_mot1 % count_gap_divisor == 0)
+                ESP_LOGI(tag_utils, "count_sensor_mot1: %d", (int)(count_sensor_mot1 / count_gap_divisor));
+        }
     }
 };
 
@@ -215,8 +225,14 @@ void count_intr_sensor_mot2(void *arg)
 {
     while (1)
     {
-        vTaskDelay(pdMS_TO_TICKS(100));
         b_sensor_mot2 = false;
+        vTaskDelay(pdMS_TO_TICKS(50));
+        if (b_sensor_mot2 == true)
+        {
+            count_sensor_mot2++;
+            if (count_sensor_mot2 % count_gap_divisor == 0)
+                ESP_LOGI(tag_utils, "count_sensor_mot2: %d", (int)(count_sensor_mot2 / count_gap_divisor));
+        }
     }
 };
 
@@ -258,4 +274,44 @@ uint64_t get_count_y_a()
 uint64_t get_count_y_b()
 {
     return count_y_b;
+};
+
+bool get_b_sensor_mot1()
+{
+    return b_sensor_mot1;
+};
+
+bool get_b_sensor_mot2()
+{
+    return b_sensor_mot2;
+};
+
+uint64_t get_count_sensor_mot1()
+{
+    return count_sensor_mot1;
+};
+
+uint64_t get_count_sensor_mot2()
+{
+    return count_sensor_mot2;
+};
+
+void set_count_sensor_mot1(uint64_t i_count_sensor_mot1)
+{
+    count_sensor_mot1 = i_count_sensor_mot1;
+};
+
+void set_count_sensor_mot2(uint64_t i_count_sensor_mot2)
+{
+    count_sensor_mot2 = i_count_sensor_mot2;
+};
+
+void reset_count_sensor_mot1()
+{
+    count_sensor_mot1 = 0;
+};
+
+void reset_count_sensor_mot2()
+{
+    count_sensor_mot2 = 0;
 };

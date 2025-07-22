@@ -6,6 +6,8 @@
 #include <esp_log.h>
 #include <esp_timer.h>
 #include <esp_task_wdt.h>
+#include <esp_mac.h>
+#include <iot_servo.h>
 
 // custom headers
 #include "shi_definitions.h"
@@ -20,8 +22,12 @@ void kin_obj_limit_test_x(void *args);
 void kin_obj_limit_test_y(void *args);
 void kin_obj_limit_test_q13(void *args);
 void kin_obj_limit_test_q24(void *args);
+void sensor_test(void *args);
+void one_rotation_test(void *args);
+void servo_test(void *args);
 
 kinematic *p_kinematic = nullptr;
+servo_motor *p_pen_servo = nullptr;
 kinematic_config i_config = kinematic_config::X_AXIS;
 
 extern "C" void app_main()
@@ -29,32 +35,40 @@ extern "C" void app_main()
     config_pin_io();
     config_pin_intr();
 
-    // xTaskCreate(safe_home_routine, "safe_home_routine", 4096, NULL, 1, NULL);
+    p_pen_servo = new servo_motor(1, phs_servo, LEDC_TIMER_1, LEDC_CHANNEL_2);
+    xTaskCreate(servo_test, "servo_test", 4096, NULL, 1, NULL);
+
     p_kinematic = new kinematic(1, i_config, mot1_pin_a, mot1_pin_b, mot2_pin_a, mot2_pin_b, mot1_slp, mot2_slp,
                                 LEDC_TIMER_0, LEDC_CHANNEL_0, LEDC_CHANNEL_1, true, true);
-    // xTaskCreate(kin_obj_free_run_test, "kin_obj_free_run_test", 4096, NULL, 2, NULL);
-    if (p_kinematic != nullptr)
-    {
-        p_kinematic->enable(false);
-        // p_kinematic->set_pwm(95);
-        p_kinematic->set_pwm(127);
-        p_kinematic->set_kinematic_config(kinematic_config::X_AXIS);
-        p_kinematic->enable(true);
-        p_kinematic->run();
-    }
-
-    xTaskCreate(kin_obj_limit_test_x, "kin_obj_limit_test_x", 4096, NULL, 2, NULL);
-    // xTaskCreate(kin_obj_limit_test_y, "kin_obj_limit_test_y", 4096, NULL, 2, NULL);
-    // xTaskCreate(kin_obj_limit_test_y, "kin_obj_limit_test_q13", 4096, NULL, 2, NULL);
-    // xTaskCreate(kin_obj_limit_test_y, "kin_obj_limit_test_q24", 4096, NULL, 2, NULL);
 
     xTaskCreate(count_intr_endstop_x_a, "test_switch_x_a", 4096, NULL, 1, NULL);
     xTaskCreate(count_intr_endstop_x_b, "test_switch_x_b", 4096, NULL, 1, NULL);
     xTaskCreate(count_intr_endstop_y_a, "test_switch_y_a", 4096, NULL, 1, NULL);
     xTaskCreate(count_intr_endstop_y_b, "test_switch_y_b", 4096, NULL, 1, NULL);
+    xTaskCreate(count_intr_sensor_mot1, "count_intr_sensor_mot1", 4096, NULL, 1, NULL);
+    xTaskCreate(count_intr_sensor_mot2, "count_intr_sensor_mot2", 4096, NULL, 1, NULL);
 
     while (1)
         vTaskDelay(pdMS_TO_TICKS(50));
+
+    // xTaskCreate(one_rotation_test, "one_rotation_test", 4096, NULL, 1, NULL);
+    // xTaskCreate(safe_home_routine, "safe_home_routine", 4096, NULL, 1, NULL);
+    // xTaskCreate(kin_obj_free_run_test, "kin_obj_free_run_test", 4096, NULL, 2, NULL);
+    // if (p_kinematic != nullptr)
+    // {
+    //     p_kinematic->enable(false);
+    //     // p_kinematic->set_pwm(95);
+    //     p_kinematic->set_pwm(127);
+    //     p_kinematic->set_kinematic_config(kinematic_config::X_AXIS);
+    //     p_kinematic->enable(true);
+    //     p_kinematic->run();
+    // }
+
+    // xTaskCreate(kin_obj_limit_test_x, "kin_obj_limit_test_x", 4096, NULL, 2, NULL);
+    // xTaskCreate(kin_obj_limit_test_y, "kin_obj_limit_test_y", 4096, NULL, 2, NULL);
+    // xTaskCreate(kin_obj_limit_test_y, "kin_obj_limit_test_q13", 4096, NULL, 2, NULL);
+    // xTaskCreate(kin_obj_limit_test_y, "kin_obj_limit_test_q24", 4096, NULL, 2, NULL);
+    // xTaskCreate(sensor_test, "sensor_test", 4096, NULL, 1, NULL);
 }
 
 void kin_obj_free_run_test(void *args)
@@ -126,6 +140,46 @@ void kin_obj_limit_test_x(void *args)
             }
         }
         vTaskDelay(pdMS_TO_TICKS(10));
+    }
+};
+
+void one_rotation_test(void *args)
+{
+    ESP_LOGI(tag_prototype, "one_rotation_test starting");
+    if (p_kinematic != nullptr)
+    {
+        p_kinematic->enable(false);
+        p_kinematic->set_kinematic_config(kinematic_config::QUAD13);
+    }
+    while (1)
+    {
+        if (p_kinematic != nullptr)
+        {
+            p_kinematic->set_pwm(95);
+            p_kinematic->enable(true);
+            p_kinematic->rotate_once_ch_a();
+            p_kinematic->enable(false);
+        }
+        vTaskDelay(pdMS_TO_TICKS(3000));
+    }
+};
+
+void sensor_test(void *args)
+{
+    uint64_t local_count_a = 0;
+    uint64_t local_count_b = 0;
+    uint64_t gap_millis = 3000;
+    ESP_LOGI(tag_prototype, "sensor_test starting");
+    p_kinematic->set_pwm(95);
+    while (1)
+    {
+        local_count_a = get_count_sensor_mot1();
+        vTaskDelay(pdMS_TO_TICKS(gap_millis));
+        local_count_b = get_count_sensor_mot1();
+        ESP_LOGI(tag_prototype, "sensor count for %d seconds is %d", (int)gap_millis / 1000, (int)(local_count_b - local_count_a));
+        p_kinematic->enable(false);
+        vTaskDelay(pdMS_TO_TICKS(5000));
+        p_kinematic->enable(true);
     }
 };
 
@@ -259,6 +313,17 @@ void safe_home_routine(void *args)
             p_kinematic->enable(true);
             p_kinematic->run();
         }
+        vTaskDelay(pdMS_TO_TICKS(3000));
+    }
+};
+
+void servo_test(void *args)
+{
+    if (p_pen_servo != nullptr)
+    {
+        p_pen_servo->run(60);
+        vTaskDelay(pdMS_TO_TICKS(3000));
+        p_pen_servo->run(0);
         vTaskDelay(pdMS_TO_TICKS(3000));
     }
 };

@@ -5,6 +5,8 @@
 #include <driver/gpio.h>
 #include <esp_intr_alloc.h>
 
+#define disc_slots 20
+
 void IRAM_ATTR intr_endstop_x_a(void *arg);
 void IRAM_ATTR intr_endstop_x_b(void *arg);
 
@@ -37,6 +39,18 @@ bool get_b_endstop_y_b();
 
 uint64_t get_count_y_a();
 uint64_t get_count_y_b();
+
+bool get_b_sensor_mot1();
+bool get_b_sensor_mot2();
+
+uint64_t get_count_sensor_mot1();
+uint64_t get_count_sensor_mot2();
+
+void set_count_sensor_mot1(uint64_t i_count_sensor_mot1);
+void set_count_sensor_mot2(uint64_t i_count_sensor_mot2);
+
+void reset_count_sensor_mot1();
+void reset_count_sensor_mot2();
 
 // class PID
 // {

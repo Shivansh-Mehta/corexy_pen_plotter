@@ -1,11 +1,13 @@
 #include "shi_motor.h"
 #include "shi_definitions.h"
+#include "shi_utils.h"
 #include <esp_log.h>
 #include <esp_timer.h>
 
 const char *motor_tag = "motor";
 const char *virtual_motor_tag = "virtual_motor";
 const char *kinematic_tag = "kinematic";
+const char *servo_motor_tag = "servo_motor";
 
 motor::motor(
     uint8_t i_id,
@@ -561,7 +563,6 @@ void kinematic::run()
     ESP_LOGI(kinematic_tag, "%d | executing run()", m_id);
 
     uint8_t ramp = 0;
-    uint8_t compensator = 0;
     while (ramp < m_pwm)
     {
         ledc_set_duty(LEDC_HIGH_SPEED_MODE, m_channel_a, ramp);
@@ -571,4 +572,88 @@ void kinematic::run()
         vTaskDelay(pdMS_TO_TICKS(10));
         ramp++;
     }
+};
+
+void kinematic::rotate_once_ch_a()
+{
+    ESP_LOGI(kinematic_tag, "%d | executing rotate_once()", m_id);
+    while (get_count_sensor_mot1() < 22)
+    {
+        ledc_set_duty(LEDC_HIGH_SPEED_MODE, m_channel_a, m_pwm);
+        ledc_update_duty(LEDC_HIGH_SPEED_MODE, m_channel_a);
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
+    ledc_set_duty(LEDC_HIGH_SPEED_MODE, m_channel_a, 0);
+    ledc_update_duty(LEDC_HIGH_SPEED_MODE, m_channel_a);
+    reset_count_sensor_mot1();
+};
+
+void kinematic::rotate_ch_a(uint64_t i_num_of_rotations)
+{
+    ESP_LOGI(kinematic_tag, "%d | executing rotate()", m_id);
+};
+
+void kinematic::rotate_once_ch_b()
+{
+    ESP_LOGI(kinematic_tag, "%d | executing rotate_once()", m_id);
+    ledc_set_duty(LEDC_HIGH_SPEED_MODE, m_channel_b, m_pwm);
+    ledc_update_duty(LEDC_HIGH_SPEED_MODE, m_channel_b);
+    vTaskDelay(pdMS_TO_TICKS(250));
+    ledc_set_duty(LEDC_HIGH_SPEED_MODE, m_channel_b, 0);
+    ledc_update_duty(LEDC_HIGH_SPEED_MODE, m_channel_b);
+};
+
+void kinematic::rotate_ch_b(uint64_t i_num_of_rotations)
+{
+    ESP_LOGI(kinematic_tag, "%d | executing rotate()", m_id);
+};
+
+uint32_t servo_motor::angle_to_duty_us(int angle)
+{
+    if (angle < 0)
+        angle = 0;
+    if (angle > m_max_degree)
+        angle = m_max_degree;
+    return m_min_microsec + ((m_max_microsec - m_min_microsec) * angle) / m_max_degree;
+};
+
+servo_motor::servo_motor(
+    uint8_t i_id,
+    gpio_num_t i_pin,
+    ledc_timer_t i_timer,
+    ledc_channel_t i_channel)
+    : m_id(i_id),
+      m_pin(i_pin),
+      m_timer(i_timer),
+      m_channel(i_channel)
+{
+    ESP_LOGI(servo_motor_tag, "%d | executing servo_motor() / constructor", m_id);
+
+    const ledc_timer_config_t ledc_timer = {
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .duty_resolution = LEDC_TIMER_16_BIT,
+        .timer_num = m_timer,
+        .freq_hz = m_freq,
+        .clk_cfg = LEDC_AUTO_CLK};
+    ledc_timer_config(&ledc_timer);
+
+    const ledc_channel_config_t ledc_channel = {
+        .gpio_num = m_pin,
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .channel = m_channel,
+        .intr_type = LEDC_INTR_DISABLE,
+        .timer_sel = m_timer,
+        .duty = 0,
+        .hpoint = 0};
+    ledc_channel_config(&ledc_channel);
+    ledc_set_duty(LEDC_LOW_SPEED_MODE, m_channel, 0);
+    ledc_update_duty(LEDC_LOW_SPEED_MODE, m_channel);
+};
+
+void servo_motor::run(double i_degrees)
+{
+    int duty_us = angle_to_duty_us(i_degrees);
+    uint32_t duty_val = (duty_us * (1 << 16)) / 20000; // 16-bit resolution, 20ms period
+    ledc_set_duty(LEDC_LOW_SPEED_MODE, m_channel, duty_val);
+    ledc_update_duty(LEDC_LOW_SPEED_MODE, m_channel);
 };
