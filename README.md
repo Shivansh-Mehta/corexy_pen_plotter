@@ -1,4 +1,4 @@
-[Project for a compulsory credit course in my graduate program.]
+[Project for an elective credit course in my graduate program.]
 
 Name: Workshop Mechatronics
 
