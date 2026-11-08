@@ -53,20 +53,6 @@ This project was built following the classic V-Model approach for mechatronics:
 * [Arduino IDE](https://www.arduino.cc/en/software) or [PlatformIO](https://platformio.org/)
 * ESP32 Board Support Package installed
 
-### Wiring Map
-*Detailed schematic available in `[docs/schematic.pdf]`*
-
-| ESP32 Pin | Component |
-| :--- | :--- |
-| `[Pin X]` | DRV8833 IN1 (Motor A) |
-| `[Pin X]` | DRV8833 IN2 (Motor A) |
-| `[Pin X]` | DRV8833 IN3 (Motor B) |
-| `[Pin X]` | DRV8833 IN4 (Motor B) |
-| `[Pin X]` | IR Sensor A (Interrupt) |
-| `[Pin X]` | IR Sensor B (Interrupt) |
-| `[Pin X]` | Servo PWM |
-| `[Pins...]` | End-Stops |
-
 ### Installation
 1. Clone the repository:
    ```bash
