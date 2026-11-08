@@ -6,8 +6,6 @@
 
 > A low-cost, 2-axis CoreXY pen plotter engineered using V-Model (VDI) principles, built around the ESP32-NodeMCU.
 
-![Hero Image or Demo GIF]([docs/images/demo.gif]) *<!-- Replace with a GIF or photo of your plotter in action -->*
-
 ## Overview
 
 Developed as part of a 2-semester engineering elective, this project strictly adheres to **V-Model (VDI 2206)** development principles for mechatronic systems. The objective was to design, simulate, build, and test a functional pen plotter from scratch using a highly constrained Bill of Materials (BOM). 
